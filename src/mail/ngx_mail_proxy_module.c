@@ -227,6 +227,7 @@ static void
 ngx_mail_proxy_pop3_handler(ngx_event_t *rev)
 {
     u_char                 *p;
+    ngx_buf_t              *b;
     ngx_int_t               rc;
     ngx_str_t               line;
     ngx_connection_t       *c;
@@ -324,8 +325,13 @@ ngx_mail_proxy_pop3_handler(ngx_event_t *rev)
         ngx_add_timer(s->connection->read, pcf->timeout);
         ngx_del_timer(c->read);
 
+        b = s->proxy->buffer;
+        line.len = b->last - b->pos - 2;
+        line.data = ngx_palloc(c->pool, line.len);
+        p = ngx_cpymem(line.data, b->pos, line.len);
+
         c->log->action = NULL;
-        ngx_log_error(NGX_LOG_INFO, c->log, 0, "client logged in");
+        ngx_log_error(NGX_LOG_INFO, c->log, 0, "client logged in: %V", &line);
 
         if (s->buffer->pos < s->buffer->last) {
             ngx_post_event(c->write, &ngx_posted_events);
@@ -365,6 +371,7 @@ static void
 ngx_mail_proxy_imap_handler(ngx_event_t *rev)
 {
     u_char                 *p;
+    ngx_buf_t              *b;
     ngx_int_t               rc;
     ngx_str_t               line;
     ngx_connection_t       *c;
@@ -483,8 +490,13 @@ ngx_mail_proxy_imap_handler(ngx_event_t *rev)
         ngx_add_timer(s->connection->read, pcf->timeout);
         ngx_del_timer(c->read);
 
+        b = s->proxy->buffer;
+        line.len = b->last - b->pos - 2;
+        line.data = ngx_palloc(c->pool, line.len);
+        p = ngx_cpymem(line.data, b->pos, line.len);
+
         c->log->action = NULL;
-        ngx_log_error(NGX_LOG_INFO, c->log, 0, "client logged in");
+        ngx_log_error(NGX_LOG_INFO, c->log, 0, "client logged in: %V", &line);
 
         if (s->buffer->pos < s->buffer->last) {
             ngx_post_event(c->write, &ngx_posted_events);
