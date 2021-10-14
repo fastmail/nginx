@@ -946,6 +946,22 @@ ngx_mail_auth_parse(ngx_mail_session_t *s, ngx_connection_t *c)
         return NGX_MAIL_PARSE_INVALID_COMMAND;
     }
 
+    if (arg[0].len == 7) {
+
+        if (ngx_strncasecmp(arg[0].data, (u_char *) "XOAUTH2", 7) == 0) {
+
+            if (s->args.nelts == 1) {
+                return NGX_MAIL_AUTH_XOAUTH2;
+            }
+
+            if (s->args.nelts == 2) {
+                return ngx_mail_auth_oauth(s, c, 1, NGX_MAIL_AUTH_XOAUTH2);
+            }
+        }
+
+        return NGX_MAIL_PARSE_INVALID_COMMAND;
+    }
+
     if (arg[0].len == 8) {
 
         if (ngx_strncasecmp(arg[0].data, (u_char *) "CRAM-MD5", 8) == 0) {
@@ -965,6 +981,22 @@ ngx_mail_auth_parse(ngx_mail_session_t *s, ngx_connection_t *c)
 
             if (s->args.nelts == 2) {
                 return ngx_mail_auth_external(s, c, 1);
+            }
+        }
+
+        return NGX_MAIL_PARSE_INVALID_COMMAND;
+    }
+
+    if (arg[0].len == 11) {
+
+        if (ngx_strncasecmp(arg[0].data, (u_char *) "OAUTHBEARER", 11) == 0) {
+
+            if (s->args.nelts == 1) {
+                return NGX_MAIL_AUTH_OAUTHBEARER;
+            }
+
+            if (s->args.nelts == 2) {
+                return ngx_mail_auth_oauth(s, c, 1, NGX_MAIL_AUTH_OAUTHBEARER);
             }
         }
 
