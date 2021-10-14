@@ -752,6 +752,39 @@ ngx_mail_auth_external(ngx_mail_session_t *s, ngx_connection_t *c,
     return NGX_DONE;
 }
 
+ngx_int_t
+ngx_mail_auth_oauth(ngx_mail_session_t *s, ngx_connection_t *c,
+    ngx_uint_t n, ngx_uint_t auth_method)
+{
+    ngx_str_t  *arg, oauth;
+
+    arg = s->args.elts;
+
+    ngx_log_debug2(NGX_LOG_DEBUG_MAIL, c->log, 0,
+                   "mail auth oauth: \"%V\" type %ui", &arg[n], auth_method);
+
+    oauth.data = ngx_pnalloc(c->pool, ngx_base64_decoded_length(arg[n].len));
+    if (oauth.data == NULL) {
+        return NGX_ERROR;
+    }
+
+    if (ngx_decode_base64(&oauth, &arg[n]) != NGX_OK) {
+        ngx_log_error(NGX_LOG_INFO, c->log, 0,
+            "client sent invalid base64 encoding in AUTH XOAUTH2/OAUTHBEARER command");
+        return NGX_MAIL_PARSE_INVALID_COMMAND;
+    }
+
+    s->passwd.len = oauth.len;
+    s->passwd.data = oauth.data;
+
+    ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0,
+                   "mail auth oauth: \"%V\"", &s->passwd);
+
+    s->auth_method = auth_method;
+
+    return NGX_DONE;
+}
+
 
 void
 ngx_mail_send(ngx_event_t *wev)
