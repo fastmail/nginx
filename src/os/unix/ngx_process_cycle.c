@@ -77,7 +77,7 @@ ngx_set_title(ngx_cycle_t *cycle, char *type)
     u_char      *p;
     size_t      size;
 
-    size = ngx_strlen(type);
+    size = ngx_strlen(type) + 1;
 
     for (i = 0; i < ngx_argc; i++) {
         size += ngx_strlen(ngx_argv[i]) + 1;
