@@ -474,6 +474,7 @@ ngx_epoll_test_rdhup(ngx_cycle_t *cycle)
     }
 
     ee.events = EPOLLET|EPOLLIN|EPOLLRDHUP;
+    ee.data.u64 = 0;
 
     if (epoll_ctl(ep, EPOLL_CTL_ADD, s[0], &ee) == -1) {
         ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
